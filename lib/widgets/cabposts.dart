@@ -226,7 +226,7 @@ class _CabPostsState extends State<CabPosts> {
                 // ),
                 Row(children: <Widget>[
                   Container(
-                      padding: EdgeInsets.only(left: 30, right: 10),
+                      padding: EdgeInsets.only(left: 10, right: 5),
                       height: 120,
                       alignment: Alignment(0, -0.45),
                       child: CustomPaint(
