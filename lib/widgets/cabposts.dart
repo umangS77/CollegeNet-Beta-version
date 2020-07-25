@@ -266,15 +266,51 @@ class _CabPostsState extends State<CabPosts> {
                     color: Colors.white.withOpacity(0.45),
                     // borderRadius: BorderRadius.circular(24),
                     child: Column(children: <Widget>[
-                      Container(
-                        padding: EdgeInsets.all(20),
-                        alignment: Alignment.center,
-                        child: Text(
-                          "Leaving Around  :-" + "  " + time,
-                          style: TextStyle(
-                            fontSize: 20,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Container(
+                            padding: EdgeInsets.only(top: 10, bottom: 10),
+                            alignment: Alignment.center,
+                            child: Text(
+                              "Leaving Around  :-" + "  " + time,
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
                           ),
-                        ),
+                          if (isOwner)
+                            IconButton(
+                              onPressed: () => showTimePicker(
+                                context: context,
+                                initialTime: TimeOfDay.now(),
+                              ).then((value) {
+                                if (value == null)
+                                  return null;
+                                else {
+                                  print(value);
+                                  setState(() {
+                                    time = value.format(context);
+                                  });
+                                  DateTime newDT = DateTime(
+                                    widget.leavetime.toDate().year,
+                                    widget.leavetime.toDate().month,
+                                    widget.leavetime.toDate().day,
+                                    value.hour,
+                                    value.minute,
+                                  );
+                                  Timestamp ldtime = Timestamp.fromDate(newDT);
+                                  cabPostsRef
+                                      .document(widget.postId)
+                                      .updateData({
+                                    "leavetime": ldtime,
+                                  });
+                                  widget.rebuild();
+                                }
+                              }),
+                              icon: Icon(Icons.mode_edit),
+                            ),
+                        ],
                       ),
                     ])),
                 // Divider(
@@ -286,7 +322,7 @@ class _CabPostsState extends State<CabPosts> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
                       Text("Already Going: " + "  " + count.toString()),
-                      (currentUser.id == widget.userId)
+                      (isOwner)
                           ? Column(
                               children: <Widget>[
                                 IconButton(

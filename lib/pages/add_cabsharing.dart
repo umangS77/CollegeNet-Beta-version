@@ -27,12 +27,13 @@ class _AddCabState extends State<AddCab> {
   String postId = Uuid().v4();
   TextEditingController srcControl = TextEditingController();
   TextEditingController destControl = TextEditingController();
-  TextEditingController contactControl = TextEditingController();
-  TextEditingController addnlControl = TextEditingController();
+  // TextEditingController contactControl = TextEditingController();
+  // TextEditingController addnlControl = TextEditingController();
   TextEditingController countControl = TextEditingController();
   bool isEmptysrc = false, isEmptydest = false;
   String date = "Not Set", time = "Not Set";
-  DateTime lDate, finaldate;
+  DateTime lDate, finaldate = DateTime.now();
+  TimeOfDay lTime;
   String userId = currentUser.id,
       username = currentUser.username,
       college = currentUser.college;
@@ -41,6 +42,13 @@ class _AddCabState extends State<AddCab> {
     setState(() {
       isUploading = true;
     });
+    finaldate = DateTime(
+      lDate.year,
+      lDate.month,
+      lDate.day,
+      lTime.hour,
+      lTime.minute,
+    );
     Timestamp leavetime = Timestamp.fromDate(finaldate);
     final chatroom = await Firestore.instance.collection('Chat Rooms').add(
       {
@@ -65,12 +73,12 @@ class _AddCabState extends State<AddCab> {
     );
     cabPostsRef.document(postId).setData({
       "college": college,
-      "facebook": "blahblah",
+      // "facebook": "blahblah",
       "userId": userId,
       "username": username,
       "source": srcControl.text,
       "destination": destControl.text,
-      "contact": contactControl.text,
+      // "contact": contactControl.text,
       "leavetime": leavetime,
       "count": int.parse(countControl.text),
       "postId": postId,
@@ -128,6 +136,9 @@ class _AddCabState extends State<AddCab> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
+                        SizedBox(
+                          height: 10,
+                        ),
                         Container(
                           width: 300.0,
                           child: TextField(
@@ -227,12 +238,7 @@ class _AddCabState extends State<AddCab> {
                                 else {
                                   setState(() {
                                     time = value.format(context);
-                                    finaldate = DateTime(
-                                        lDate.year,
-                                        lDate.month,
-                                        lDate.day,
-                                        value.hour,
-                                        value.minute);
+                                    lTime = value;
                                   });
                                 }
                               }),
@@ -276,45 +282,45 @@ class _AddCabState extends State<AddCab> {
                         SizedBox(
                           height: 20,
                         ),
-                        Container(
-                          width: 300.0,
-                          child: TextField(
-                            maxLength: 10,
-                            controller: contactControl,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: <TextInputFormatter>[
-                              WhitelistingTextInputFormatter.digitsOnly
-                            ],
-                            decoration: InputDecoration(
-                              labelText: "Contact Number",
-                              hintText: "82941xxxxx",
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.deepOrangeAccent,
-                                    width: 40.0),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Container(
-                          child: TextField(
-                            controller: addnlControl,
-                            decoration: InputDecoration(
-                              labelText: "Additional Info",
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.deepOrangeAccent,
-                                    width: 40.0),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 20),
+                        // Container(
+                        //   width: 300.0,
+                        //   child: TextField(
+                        //     maxLength: 10,
+                        //     controller: contactControl,
+                        //     keyboardType: TextInputType.number,
+                        //     inputFormatters: <TextInputFormatter>[
+                        //       WhitelistingTextInputFormatter.digitsOnly
+                        //     ],
+                        //     decoration: InputDecoration(
+                        //       labelText: "Contact Number",
+                        //       hintText: "82941xxxxx",
+                        //       border: OutlineInputBorder(
+                        //         borderSide: BorderSide(
+                        //             color: Colors.deepOrangeAccent,
+                        //             width: 40.0),
+                        //         borderRadius: BorderRadius.circular(10.0),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        // SizedBox(
+                        //   height: 20,
+                        // ),
+                        // Container(
+                        //   child: TextField(
+                        //     controller: addnlControl,
+                        //     decoration: InputDecoration(
+                        //       labelText: "Additional Info",
+                        //       border: OutlineInputBorder(
+                        //         borderSide: BorderSide(
+                        //             color: Colors.deepOrangeAccent,
+                        //             width: 40.0),
+                        //         borderRadius: BorderRadius.circular(10.0),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        // SizedBox(height: 20),
                         Center(
                           child: ButtonTheme(
                             disabledColor: Colors.grey,
