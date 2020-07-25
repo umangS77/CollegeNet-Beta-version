@@ -98,6 +98,7 @@ class _AnnouncementPostState extends State<AnnouncementPost> {
                         ),
                         title: Text(
                           widget.caption.toUpperCase(),
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -130,6 +131,7 @@ class _AnnouncementPostState extends State<AnnouncementPost> {
                         padding: EdgeInsets.all(16),
                         child: Text(
                           widget.content,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.black,
 //                              fontWeight: FontWeight.bold,
