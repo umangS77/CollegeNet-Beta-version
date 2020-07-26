@@ -12,6 +12,7 @@ class AnnouncementPost extends StatefulWidget {
   final String college;
   final String target;
   final VoidCallback rebuild;
+  final Timestamp posttime;
   AnnouncementPost({
     this.postid,
     this.userId,
@@ -21,6 +22,7 @@ class AnnouncementPost extends StatefulWidget {
     this.college,
     this.target,
     this.rebuild,
+    this.posttime,
   });
   factory AnnouncementPost.fromDocument(DocumentSnapshot doc) {
     return new AnnouncementPost(
@@ -49,13 +51,15 @@ class _AnnouncementPostState extends State<AnnouncementPost> {
     details = widget.content;
     return Container(
       width: MediaQuery.of(context).size.width,
-      height: 300,
+      // height: 300,
       child: Padding(
         padding: EdgeInsets.all(15),
         child: Container(
           decoration: BoxDecoration(
-              gradient:
-                  LinearGradient(colors: [Colors.green[200], Colors.blue[200]]),
+              gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [Colors.green[200], Colors.blue[200]]),
 //          color: Colors.black,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
@@ -124,8 +128,35 @@ class _AnnouncementPostState extends State<AnnouncementPost> {
                       height: 12,
                     ),
                     Container(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              widget.posttime.toDate().day.toString() +
+                                  "/" +
+                                  widget.posttime.toDate().month.toString() +
+                                  "/" +
+                                  widget.posttime.toDate().year.toString(),
+                              style: TextStyle(fontSize: 18),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              widget.posttime.toDate().hour.toString() +
+                                  " : " +
+                                  widget.posttime.toDate().minute.toString(),
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
                       alignment: Alignment.center,
-                      height: 182,
+                      // height: 182,
                       width: MediaQuery.of(context).size.width,
                       child: Padding(
                         padding: EdgeInsets.all(16),

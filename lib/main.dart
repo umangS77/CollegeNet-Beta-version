@@ -12,6 +12,7 @@ class SummerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: "College Net",
       theme: ThemeData(
         primarySwatch: Colors.pink,

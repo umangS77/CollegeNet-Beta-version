@@ -84,6 +84,7 @@ class _AnnouncementsState extends State<Announcements> {
         username: list[i].data['username'],
         target: list[i].data['target'],
         rebuild: rebuildannouncements,
+        posttime: list[i].data['nowtime'],
       ));
     }
     announcementposts.clear();

@@ -193,7 +193,7 @@ class _GlobalFilesState extends State<GlobalFiles> {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      _GlobalRoute(),
+                      _globalRoute(),
                     );
                   },
                   child: Text(
@@ -208,7 +208,7 @@ class _GlobalFilesState extends State<GlobalFiles> {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      _LocalRoute(),
+                      _localRoute(),
                     );
                   },
                   child: Text(
@@ -288,7 +288,7 @@ class _GlobalFilesState extends State<GlobalFiles> {
     ),
   );
 
-  Route _GlobalRoute() {
+  Route _globalRoute() {
     return PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => AddGlobalFile(
               rebuild: rebuildfileposts,
@@ -306,7 +306,7 @@ class _GlobalFilesState extends State<GlobalFiles> {
         });
   }
 
-  Route _LocalRoute() {
+  Route _localRoute() {
     return PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => AddLocalFile(
               rebuild: rebuildfileposts,

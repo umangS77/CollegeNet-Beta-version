@@ -40,6 +40,7 @@ class _HomeCabsState extends State<HomeCabs> {
     return ChangeNotifierProvider(
       builder: (ctx) => AllCabs(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Cab',
         theme: ThemeData(
           primarySwatch: MaterialColor(0xff1a2639, color),

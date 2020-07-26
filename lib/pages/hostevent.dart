@@ -41,6 +41,7 @@ class _HostEventState extends State<HostEvent> {
     return ChangeNotifierProvider(
       builder: (ctx) => Events(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Event Host',
         theme: ThemeData(
           primarySwatch: MaterialColor(0xff1a2639, color),
