@@ -384,6 +384,7 @@ class _FirstRouteState extends State<FirstRoute> {
                     if (value.isEmpty) {
                       return 'Please select a place';
                     }
+                    return '';
                   },
                   onSaved: (value) => this._selectedCity1 = value,
                 ),

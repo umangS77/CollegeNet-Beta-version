@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collegenet/services/auth.dart';
 import 'package:collegenet/pages/homepage.dart';
 import 'package:collegenet/pages/loginsignup.dart';
