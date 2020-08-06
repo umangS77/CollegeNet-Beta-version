@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     pageIndex = widget.pageIndex;
-    print(pageIndex);
+    // print(pageIndex);
     createUserInFirestore();
     pageController = PageController(initialPage: pageIndex);
   }

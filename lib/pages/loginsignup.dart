@@ -28,7 +28,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   String _email = "", _password = "";
   bool load = false;
   String text1 = "Sign In", text2 = "Welcome Back";
-  String errMsg = "";
+  String errMsgForgot = "";
   List<Color> loginColor = [
     Colors.orange[900],
     Colors.orange[600],
@@ -49,32 +49,43 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
   }
 
   void validateAndSubmit() async {
-    if (validateAndSave()) {
-      try {
-        setState(() {
-          load = true;
-          _email = emailCont.text;
-          _password = passCont.text;
-        });
-        if (_formType == FormType.login) {
-          String userId = await widget.auth.signIn(_email, _password);
-          print("Register userId = " + userId);
-        } else {
-          String userId = await widget.auth.signUp(_email, _password);
-          print("Register userId = " + userId);
-        }
-        widget.onSignedIn();
-      } catch (e) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => errorWidget()),
-        );
-        setState(() {
-          load = false;
-          errMsg = e.message;
-        });
-        print("error :" + e.toString());
+    String errMsg = '';
+    try {
+      setState(() {
+        load = true;
+        _email = emailCont.text;
+        _password = passCont.text;
+      });
+      String userId = '';
+      if (_formType == FormType.login) {
+        userId = await widget.auth.signIn(_email, _password);
+        print("Login userId = " + userId);
+      } else {
+        userId = await widget.auth.signUp(_email, _password);
+        print("Register userId = " + userId);
       }
+      if (userId != null)
+        widget.onSignedIn();
+      else {
+        setState(() {
+          errMsg = "You need to verify your e-mail to sign in";
+        });
+        print(errMsg);
+      }
+    } catch (e) {
+      print(e.toString() + "booyaaah");
+      setState(() {
+        load = false;
+        if (e.toString() != 'Invalid argument(s)')
+          errMsg = e.message;
+        else
+          errMsg = "You need to verify your e-mail to sign in";
+      });
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => errorWidget(errMsg)),
+      );
+      print(errMsg);
     }
   }
 
@@ -123,7 +134,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  // visibleMessage ? SizedBox(height: 40) : Container(),
+                  visibleMessage ? SizedBox(height: 40) : Container(),
                   visibleMessage
                       ? Container(
                           decoration: BoxDecoration(
@@ -135,7 +146,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
                               children: <Widget>[
                                 Expanded(
                                     child: Text(
-                                  errMsg,
+                                  errMsgForgot,
                                   style: TextStyle(fontSize: 14),
                                 )),
                                 IconButton(
@@ -275,8 +286,8 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
     ];
   }
 
-  errorWidget() {
-    if (errMsg.length > 0 && errMsg != null) {
+  errorWidget(String errMsg) {
+    if (errMsg != null && errMsg.length > 0) {
       return Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -347,7 +358,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
                         forgotmessage: (e) {
                           setState(() {
                             visibleMessage = true;
-                            errMsg = e;
+                            errMsgForgot = e;
                           });
                         },
                       ),

@@ -15,14 +15,25 @@ class Auth implements AuthImplementation {
     FirebaseUser user = (await _firebaseAuth.signInWithEmailAndPassword(
             email: email, password: password))
         .user;
-    return user.uid;
+    if (user.isEmailVerified)
+      return user.uid;
+    else
+      return null;
   }
 
   Future<String> signUp(String email, String password) async {
     FirebaseUser user = (await _firebaseAuth.createUserWithEmailAndPassword(
             email: email, password: password))
         .user;
-    return user.uid;
+    try {
+      await user.sendEmailVerification();
+    } catch (e) {
+      print(e.toString());
+    }
+    if (user.isEmailVerified)
+      return user.uid;
+    else
+      return null;
   }
 
   Future<String> getCurrentUser() async {
