@@ -13,6 +13,7 @@ QuerySnapshot snapshot;
 String init = "";
 int cnt = 0;
 String pageName = "";
+final CollectionReference batchRef = Firestore.instance.collection("batch");
 
 class Announcements extends StatefulWidget {
   Announcements({
@@ -28,10 +29,22 @@ class Announcements extends StatefulWidget {
 }
 
 class _AnnouncementsState extends State<Announcements> {
-  String college = currentUser.college;
+  String college = currentUser.college, batch = '';
   bool isLoading = false;
   List<AnnouncementPost> posts = [];
   TextEditingController searchControl = TextEditingController();
+  List<String> batchChoices = [];
+  List<String> batchOptions = [];
+  createDropdownItems() async {
+    QuerySnapshot batchSnap = await batchRef.orderBy('batch').getDocuments();
+    List<DocumentSnapshot> batchDocs = batchSnap.documents;
+    batchChoices.clear();
+    for (var i = 0; i < batchDocs.length; i++) {
+      batchChoices.add(batchDocs[i].data['batch']);
+    }
+    batchOptions = batchChoices;
+  }
+
   getAnnouncementPosts() async {
     setState(() {
       isLoading = true;
@@ -48,9 +61,6 @@ class _AnnouncementsState extends State<Announcements> {
 
   rebuildannouncements() {
     getAnnouncementPosts();
-    setState(() {
-      init = "";
-    });
   }
 
   buildannouncementposts(String query) {
@@ -59,15 +69,29 @@ class _AnnouncementsState extends State<Announcements> {
     List<Widget> announcementposts = [];
     List<DocumentSnapshot> list = [], l = snapshot.documents, temp = [];
     for (var i = l.length - 1; i >= 0; i--) {
-      temp.add(l[i]);
+      // String docid = l[i].data['postid'];
+      String val = l[i]
+          .data['nowtime']
+          .toDate()
+          .add(new Duration(days: 7))
+          .difference(DateTime.now())
+          .toString();
+      print(val);
+      // print(DateTime.now());
+      if (val.compareTo("0") < 0) {
+        print("1 week before, not displaying");
+      } else
+        temp.add(l[i]);
     }
     l = temp;
-    if (query != "") {
+    if (batch != "All Batches") {
       list.clear();
-      String cap;
+      String batches;
       for (var i = 0; i < l.length; i++) {
-        cap = l[i].data['caption'].toString().toLowerCase();
-        if (cap.contains(query)) {
+        batches = l[i].data['batches'].toString();
+        // print(i.toString() + ":  " + batches);
+        // print(l[i].da)
+        if (batches.contains(batch)) {
           list.add(l[i]);
         }
       }
@@ -122,6 +146,7 @@ class _AnnouncementsState extends State<Announcements> {
         context: parentContext,
         builder: (context) => AddAnnouncement(
               rebuild: rebuildannouncements,
+              batchlist: batchChoices,
             ));
   }
 
@@ -130,6 +155,7 @@ class _AnnouncementsState extends State<Announcements> {
         pageBuilder: (context, animation, secondaryAnimation) =>
             AddAnnouncement(
               rebuild: rebuildannouncements,
+              batchlist: batchChoices,
             ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           var begin = Offset(0.0, 1.0);
@@ -148,8 +174,10 @@ class _AnnouncementsState extends State<Announcements> {
   void initState() {
     super.initState();
     cnt = 0;
+    createDropdownItems();
     getAnnouncementPosts();
     pageName = "College Announcements";
+    batch = "All Batches";
   }
 
   @override
@@ -171,9 +199,38 @@ class _AnnouncementsState extends State<Announcements> {
           ? circularProgress()
           : Container(
               child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: buildannouncementposts(init),
-              ),
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    children: [
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: DropdownButton<String>(
+                            items: batchOptions.map((String item) {
+                              print('*******');
+                              print(item);
+                              return DropdownMenuItem<String>(
+                                value: item,
+                                child: Text(
+                                  item,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (String selectedOption) {
+                              setState(() {
+                                this.batch = selectedOption;
+                              });
+                            },
+                            value: batch,
+                          ),
+                        ),
+                      ),
+                      buildannouncementposts(init),
+                    ],
+                  )),
             ),
       floatingActionButton: FloatingActionButton(
         child: Icon(
