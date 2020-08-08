@@ -1,4 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collegenet/pages/homepage.dart';
+import 'package:collegenet/services/loading.dart';
+import 'package:collegenet/widgets/collegelist.dart';
+import 'package:collegenet/widgets/newcollege.dart';
+import 'package:direct_select/direct_select.dart';
 import 'package:flutter/material.dart';
+
+final collegesRef = Firestore.instance.collection('Colleges');
 
 class CreateAccount extends StatefulWidget {
   @override
@@ -8,6 +16,8 @@ class CreateAccount extends StatefulWidget {
 class _CreateAccountState extends State<CreateAccount> {
   final _formKey = GlobalKey<FormState>();
   String username, college = 'IIIT-H', batch = 'UG2k15';
+  bool register = false, isloading = false, uniqueName = true;
+  QuerySnapshot snapshot;
   List<String> collegeList = [
     'IIIT-H',
     'IIT-B',
@@ -34,15 +44,131 @@ class _CreateAccountState extends State<CreateAccount> {
     'PG2K19',
     'PG2K20',
   ];
+  int index = 0;
 
-  submit() {
+  submit() async {
     _formKey.currentState.save();
-    var data = [username, college, batch];
-    Navigator.pop(context, data);
+    await usernamelist(username);
+    print(username);
+    if (uniqueName) {
+      var data = [username, college, batch];
+      Navigator.pop(context, data);
+    }
+  }
+
+  getcollegelist() async {
+    setState(() {
+      isloading = true;
+    });
+    QuerySnapshot listcol = await collegesRef.orderBy('Name').getDocuments();
+    List<DocumentSnapshot> colsnap = listcol.documents;
+    collegeList.clear();
+    for (var i = 0; i < colsnap.length; i++) {
+      collegeList.add(colsnap[i].data['Name']);
+    }
+    college = collegeList.first;
+    setState(() {
+      isloading = false;
+    });
+  }
+
+  gotoregister() {
+    if (register) {
+      Navigator.push(context, _newCollegeRoute());
+      setState(() {
+        register = false;
+      });
+    }
+  }
+
+  Route _chooseCollegeRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => CollegeList(
+              collegelist: collegeList,
+              collegeName: (name) {
+                Navigator.pop(context);
+                getcollegelist();
+                if (name != 'Register Your College') {
+                  setState(() {
+                    college = name;
+                  });
+                } else {
+                  setState(() {
+                    register = true;
+                  });
+                  print(register);
+
+                  gotoregister();
+                }
+              },
+            ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          var begin = Offset(0.0, 1.0);
+          var end = Offset.zero;
+          var curve = Curves.bounceInOut;
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        });
+  }
+
+  Route _newCollegeRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            RegisterCollege(
+              collegelist: collegeList,
+              collegeName: (name) {
+                setState(() {
+                  college = name;
+                });
+              },
+            ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          var begin = Offset(0.0, 1.0);
+          var end = Offset.zero;
+          var curve = Curves.bounceInOut;
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        });
+  }
+
+  buildusername() async {
+    snapshot = await usersRef.getDocuments();
+  }
+
+  usernamelist(String name) async {
+    setState(() {
+      uniqueName = true;
+    });
+
+    List<DocumentSnapshot> usernames = snapshot.documents;
+    for (var i = 0; i < usernames.length; i++) {
+      if (usernames[i].data['username'] == name) {
+        setState(() {
+          uniqueName = false;
+        });
+        break;
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    buildusername();
+    getcollegelist();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Navigator.push(context, _newCollegeRoute());
     return Scaffold(
       backgroundColor: Color(0xffe2ded3),
       appBar: AppBar(
@@ -73,7 +199,7 @@ class _CreateAccountState extends State<CreateAccount> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.all(16.0),
+                  padding: EdgeInsets.all(8.0),
                   child: Container(
                     child: Form(
                       key: _formKey,
@@ -89,33 +215,39 @@ class _CreateAccountState extends State<CreateAccount> {
                             ),
                             maxLength: 14,
                           ),
-                          SizedBox(
-                            height: 12.0,
-                          ),
-                          // TextFormField(
-                          //   onSaved: (val1) => college = val1,
-                          //   decoration: InputDecoration(
-                          //     border: OutlineInputBorder(),
-                          //     labelText: "College",
-                          //     labelStyle: TextStyle(fontSize: 15.0),
-                          //     hintText: "Must be at least 3 characters",
-                          //   ),
-                          // ),
-                          //DropDown list for colleges
-                          DropdownButton<String>(
-                            items: collegeList.map((String item) {
-                              return DropdownMenuItem<String>(
-                                value: item,
-                                child: Text(item),
-                              );
-                            }).toList(),
-                            onChanged: (String selectedOption) {
-                              setState(() {
-                                this.college = selectedOption;
-                              });
+                          if (!uniqueName)
+                            Text(
+                              'Username is already in use',
+                              style: TextStyle(fontSize: 16, color: Colors.red),
+                            ),
+                          if (!uniqueName)
+                            SizedBox(
+                              height: 12.0,
+                            ),
+                          RaisedButton(
+                            onPressed: () {
+                              isloading
+                                  ? circularProgress()
+                                  : Navigator.push(
+                                      context, _chooseCollegeRoute());
                             },
-                            value: college,
+                            child: Text('Choose College'),
                           ),
+                          Text(college),
+                          // DropdownButton<String>(
+                          //   items: collegeList.map((String item) {
+                          //     return DropdownMenuItem<String>(
+                          //       value: item,
+                          //       child: Text(item),
+                          //     );
+                          //   }).toList(),
+                          //   onChanged: (String selectedOption) {
+                          //     setState(() {
+                          //       this.college = selectedOption;
+                          //     });
+                          //   },
+                          //   value: college,
+                          // ),
                           DropdownButton<String>(
                             items: batchList.map((String item) {
                               return DropdownMenuItem<String>(
